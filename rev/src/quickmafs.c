@@ -9,8 +9,6 @@
 + BODMAS is not here
 */
 
-#define RUN 1
-
 
 void
 quickmafs()
