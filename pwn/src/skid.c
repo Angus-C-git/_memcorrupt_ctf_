@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 
 
 void print_menu(void);
@@ -8,44 +8,11 @@ void print_start(void);
 void print_version_data(void);
 char get_cmd(void);
 void parse_cmd(char cmd);
+void configure_service(void);
+char * do_service_lookup(int16_t port_no);
+void quit(void);
 
 #define MAX_PORT 65535
-
-
-void
-print_startup(void)
-{
-    printf("             ________________________________________________   \n");
-    printf("            /                                                \\  \n");
-    printf("           |    _________________________________________     | \n");
-    printf("           |   |                                         |    | \n");
-    printf("           |   |  > hacktheplanet                        |    | \n");
-    printf("           |   |  > press any key to pwn ...             |    | \n");
-    printf("           |   |  > _ |                                  |    | \n");
-    printf("           |   |                                         |    | \n");
-    printf("           |   |                                         |    | \n");    
-    printf("           |   |                                         |    | \n");
-    printf("           |   |                                         |    | \n");
-    printf("           |   |                                         |    | \n");
-    printf("           |   |                                         |    | \n");
-    printf("           |   |                                         |    | \n");
-    printf("           |   |                                         |    | \n");
-    printf("           |   |_________________________________________|    | \n");
-    printf("           |                                                  | \n");
-    printf("            \\_________________________________________________/ \n");
-    printf("                   \\___________________________________/        \n");
-    printf("                ___________________________________________     \n");
-    printf("             _-'    .-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.  --- `-_  \n");
-    printf("          _-'.-.-. .---.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.  .-.-.`-_ \n");
-    printf("       _-'.-.-.-. .---.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-`__`. .-.-.-.`-_ \n");
-    printf("    _-'.-.-.-.-. .-----.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-----. .-.-.-.-.`-_ \n");
-    printf(" _-'.-.-.-.-.-. .---.-. .-------------------------. .-.---. .---.-.-.-.`-_ \n");
-    printf(":-------------------------------------------------------------------------: \n");
-    printf("`---._.-------------------------------------------------------------._.---' \n");
-    printf("\n\n\n");
-}
-
-
 
 
 struct Service {
@@ -53,7 +20,9 @@ struct Service {
     char *service_name;
 };
 
-char service_name[0x400] = "NEW_SERVICEaaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaapaaaqaaaraaasaaataaauaaavaaawaaaxaaayaaazaabbaabcaabdaabeaabfaabgaabhaabiaabjaabkaablaabmaabnaaboaabpaabqaabraabsaabtaabuaabvaabwaabxaabyaabzaacbaaccaacdaaceaacfaacgaachaaciaacjaackaaclaacmaacnaac";
+/* -16 from services*/
+char new_service_name[128] = "empty";
+
 
 struct Service services[MAX_PORT] = {
     {0, "NA"},
@@ -137,7 +106,7 @@ struct Service services[MAX_PORT] = {
     {78, "NA"},
     {79, "NA"},
     { 80, "HTTP" },
-    
+
     // bordem overtook me
     { 443, "HTTPS" },
     { 8080, "HTTP_8080" },
@@ -145,12 +114,58 @@ struct Service services[MAX_PORT] = {
 };
 
 
+void
+print_startup(void)
+{
+    printf("             ________________________________________________   \n");
+    printf("            /                                                \\  \n");
+    printf("           |    _________________________________________     | \n");
+    printf("           |   |                                         |    | \n");
+    printf("           |   |  > hacktheplanet                        |    | \n");
+    printf("           |   |  > press any key to pwn ...             |    | \n");
+    printf("           |   |  > _ |                                  |    | \n");
+    printf("           |   |                                         |    | \n");
+    printf("           |   |                                         |    | \n");    
+    printf("           |   |                                         |    | \n");
+    printf("           |   |                                         |    | \n");
+    printf("           |   |                                         |    | \n");
+    printf("           |   |                                         |    | \n");
+    printf("           |   |                                         |    | \n");
+    printf("           |   |                                         |    | \n");
+    printf("           |   |_________________________________________|    | \n");
+    printf("           |                                                  | \n");
+    printf("            \\_________________________________________________/ \n");
+    printf("                   \\___________________________________/        \n");
+    printf("                ___________________________________________     \n");
+    printf("             _-'    .-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.  --- `-_  \n");
+    printf("          _-'.-.-. .---.-.-.-.-.-.-.-.-.-.-.-.-.-.-.--.  .-.-.`-_ \n");
+    printf("       _-'.-.-.-. .---.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-`__`. .-.-.-.`-_ \n");
+    printf("    _-'.-.-.-.-. .-----.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-----. .-.-.-.-.`-_ \n");
+    printf(" _-'.-.-.-.-.-. .---.-. .-------------------------. .-.---. .---.-.-.-.`-_ \n");
+    printf(":-------------------------------------------------------------------------: \n");
+    printf("`---._.-------------------------------------------------------------._.---' \n");
+    printf("\n\n\n");
+}
+
 
 void
+configure_service(void)
+{
+    int port;
+    printf("Enter port for service: \n");
+    scanf("%d", &port);
+    printf("Enter new service name: \n");
+    fgets(new_service_name, 128, stdin);
+}
+
+
+
+char *
 do_service_lookup(int16_t port_no)
 {
     struct Service service = services[port_no];
     printf("Service: %s\n", service.service_name);
+    return service.service_name;
 }
 
 
@@ -159,6 +174,8 @@ pop_shell(void)
 {
     int port;
     char host[20];
+    char service_config_file[142];
+    char config_buffer[1024];
 
     printf("> Spooling up network runner ... \n");
     printf("> Starting config manager ... \n\n");
@@ -186,9 +203,48 @@ pop_shell(void)
 
     // do sth bad with the port
     printf("Performing service lookup based on port number ...\n");
-    do_service_lookup(port);
+    char * service_name = do_service_lookup(port);
+
+    if (strcmp(service_name, "NA") == 0) {
+        printf("Service not found!\n");
+        printf("Would you like to configure a new service? \n\n");
+        print_menu();
+    }
+    else {
+        printf("Configuring attack server for %s ...\n", service_name);
+        printf("Reading config from file ...\n");
+
+        strcpy(service_config_file, service_name);
+
+        strcat(service_config_file, ".txt");
+        printf("Service config: %s\n", service_config_file);
+
+
+        FILE *f = fopen(service_config_file, "r");
+
+        if (f == NULL) {
+            printf("Could not open config file!\n");
+            quit();
+        }
+
+        while (fgets(config_buffer, sizeof(config_buffer), f)) 
+        {
+            printf("%s", config_buffer);
+        }
+
+        fclose(f);
+        printf("Config complete, run the file with metasploit to begin\n");
+        quit();
+    }
 }
 
+
+void
+quit()
+{
+    printf("\n> Happy hunting, and remember fu*ck windows\n");
+    exit(0);
+}
 
 
 void
@@ -233,11 +289,13 @@ parse_cmd(char cmd)
             print_version_data();
             break;
         case 'q':
-            printf("\n> Happy hunting, and remember fu*ck windows\n");
-            exit(0);
+            quit();
             break;
         case 's':
             pop_shell();
+            break;
+        case 'c':
+            configure_service();
             break;
         default:
             printf("> Command not recognised\n");
@@ -256,6 +314,7 @@ print_menu(void)
     printf("(h) Print this menu\n");
     printf("(v) Print version data\n");
     printf("(s) Pop a shell\n");
+    printf("(c) Configure custom service\n");
     printf("(q) Quit\n");
 
     printf("\n\n");
@@ -287,7 +346,6 @@ int main(void)
    a beezee 
 + See if you can find a flaw in it
 
-+ compile
-
-`gcc -fno-stack-protector -no-pie -z norelro -m32 -g skid.c -o skid`
++ compile:
+    `gcc -fno-stack-protector -no-pie -z norelro -m32 -g skid.c -o skid`
 */
