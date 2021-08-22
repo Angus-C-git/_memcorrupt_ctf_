@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo socat tcp-l:6447,reuseaddr,fork EXEC:"./skid",pty,stderr

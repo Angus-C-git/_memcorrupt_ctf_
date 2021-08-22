@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo socat tcp-l:4242,reuseaddr,fork EXEC:"./natt",pty,stderr
