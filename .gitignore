@@ -1,8 +1,8 @@
 # solutions
-rev/src/
-# pwn/src/
-pwn/sols/
-audit/reports/
+# rev/src/
+# # pwn/src/
+# pwn/sols/
+# audit/reports/
 
 
 ## Ignore Visual Studio temporary files, build results, and
