@@ -135,6 +135,7 @@ network_device(int device_key)
             break;                                     
         default:
             printf("Somehow we don't support that device \n");
+            printf("NATT V2, compiled with libc-2.33.so");
             exit(0);
             break;
     }
