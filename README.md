@@ -25,5 +25,5 @@ sudo apt-get socat
 Then, 
 
 ```
-./startpwn
+sudo ./startpwn
 ```
